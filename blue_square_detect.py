@@ -5,7 +5,6 @@ cap = cv2.VideoCapture(0)
 
 while True:
     ret, frame = cap.read()
-    frame = cv2.bilateralFilter(frame, 9, 75, 75)
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     gr = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     bl = cv2.medianBlur(gr, 5)
@@ -23,22 +22,25 @@ while True:
     contours = cv2.findContours(blue_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[0]
 
     for cont in contours:
-        sm = cv2.arcLength(cont, True)
-        apd = cv2.approxPolyDP(cont, 0.02 * sm, True)
+        area = cv2.contourArea(cont)
 
-        if len(apd) == 4:
-            cv2.drawContours(frame, [apd], -1, (0, 255, 0), 4)
+        if area > 15000:
+            sm = cv2.arcLength(cont, True)
+            apd = cv2.approxPolyDP(cont, 0.02 * sm, True)
 
-    centres = []
-    x1 = 320; y1 = 240
-    for i in contours:
-        moment = cv2.moments(i)
-        x2 = int(moment['m10'] / moment['m00']); y2 = int(moment['m01'] / moment['m00'])
-        centres.append((x2, y2))
-        x = x2 - x1; y = y2 - y1
-    print(centres)
-    print(x, y)
-    print()
+            if len(apd) == 4:
+                cv2.drawContours(frame, [apd], -1, (0, 255, 0), 4)
+                print("Обнаружен синий квадрат")
+
+            centres = []
+            x1 = 320; y1 = 240
+
+            moment = cv2.moments(cont)
+            x2 = int(moment['m10'] / moment['m00']); y2 = int(moment['m01'] / moment['m00'])
+            centres.append((x2, y2))
+            x = x2 - x1; y = y2 - y1
+            print(centres)
+            print()
 
     cv2.imshow("Blue Square Detection", frame)
 
