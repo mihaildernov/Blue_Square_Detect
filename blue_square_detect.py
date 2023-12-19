@@ -24,7 +24,7 @@ while True:
     for cont in contours:
         area = cv2.contourArea(cont)
 
-        if area > 15000:
+        if area > 10000:
             sm = cv2.arcLength(cont, True)
             apd = cv2.approxPolyDP(cont, 0.02 * sm, True)
 
